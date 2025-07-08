@@ -1,0 +1,4 @@
+client-app/node_modules/
+client-app/node_modules/**
+login-consent-app/node_modules/
+login-consent-app/node_modules/**

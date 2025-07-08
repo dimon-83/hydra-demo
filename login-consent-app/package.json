@@ -1,0 +1,30 @@
+{
+  "name": "hydra-login-consent-app",
+  "version": "1.0.0",
+  "description": "Ory Hydra 登录和同意应用",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.4.0",
+    "body-parser": "^1.20.2",
+    "express-session": "^1.17.3",
+    "ejs": "^3.1.9",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  },
+  "keywords": [
+    "oauth2",
+    "oidc",
+    "hydra",
+    "sso",
+    "authentication"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+} 

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>错误 - OAuth2 客户端应用</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .error-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+        
+        .error-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .error-title {
+            color: #dc3545;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #dc3545;
+            text-align: left;
+        }
+        
+        .error-details {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        
+        .error-details h4 {
+            color: #495057;
+            margin-bottom: 1rem;
+        }
+        
+        .error-details code {
+            background: #e9ecef;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .solutions {
+            background: #d1ecf1;
+            border-left: 4px solid #bee5eb;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        
+        .solutions h4 {
+            color: #0c5460;
+            margin-bottom: 0.5rem;
+        }
+        
+        .solutions ul {
+            margin-left: 1rem;
+            color: #0c5460;
+        }
+        
+        .solutions li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-icon">❌</div>
+        <h1 class="error-title">OAuth2 认证错误</h1>
+        
+        <% if (error) { %>
+        <div class="error-message">
+            <strong>错误类型:</strong> <code><%= error %></code>
+        </div>
+        <% } %>
+        
+        <% if (error_description) { %>
+        <div class="error-details">
+            <h4>错误描述:</h4>
+            <p><%= error_description %></p>
+        </div>
+        <% } %>
+        
+        <% if (!error && !error_description) { %>
+        <div class="error-message">
+            <strong>未知错误</strong><br>
+            处理OAuth2认证请求时发生了意外错误。
+        </div>
+        <% } %>
+        
+        <div class="solutions">
+            <h4>可能的解决方案:</h4>
+            <ul>
+                <% if (error === 'invalid_state' || error === 'session_lost') { %>
+                <li><strong>立即解决:</strong> <a href="/login/reset" style="color: #0c5460; text-decoration: underline;">点击这里重新开始登录</a></li>
+                <li>确保只在一个浏览器标签页进行登录</li>
+                <li>避免在登录过程中刷新页面</li>
+                <li>检查客户端应用是否在登录过程中重启</li>
+                <% } else if (error === 'access_denied') { %>
+                <li>您拒绝了应用的授权请求</li>
+                <li>如需使用应用功能，请重新授权</li>
+                <% } else if (error === 'token_exchange_failed') { %>
+                <li>检查网络连接是否正常</li>
+                <li>确认 Hydra 服务是否正在运行</li>
+                <li>验证客户端配置是否正确</li>
+                <% } else { %>
+                <li>检查请求参数是否正确</li>
+                <li>确认客户端应用配置是否正确</li>
+                <li>验证 Hydra 服务是否正常运行</li>
+                <li>检查网络连接状态</li>
+                <% } %>
+                <li>联系系统管理员获取帮助</li>
+            </ul>
+        </div>
+        
+        <div class="actions">
+            <% if (error === 'invalid_state' || error === 'session_lost') { %>
+            <a href="/login/reset" class="btn btn-primary">重新开始登录</a>
+            <a href="/" class="btn btn-secondary">返回首页</a>
+            <% } else { %>
+            <a href="/" class="btn btn-primary">返回首页</a>
+            <a href="javascript:history.back()" class="btn btn-secondary">返回上一页</a>
+            <% } %>
+        </div>
+    </div>
+</body>
+</html> 

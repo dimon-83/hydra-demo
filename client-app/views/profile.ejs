@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户资料 - OAuth2 客户端应用</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .nav-links {
+            margin-top: 1rem;
+        }
+        
+        .nav-links a {
+            color: #007bff;
+            text-decoration: none;
+            margin: 0 1rem;
+        }
+        
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        
+        .card h3 {
+            color: #495057;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 0.5rem;
+        }
+        
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0 auto 1rem;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        
+        .detail-item .label {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .detail-item .value {
+            color: #007bff;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        
+        .token-display {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: #495057;
+            max-height: 150px;
+            overflow-y: auto;
+            word-break: break-all;
+        }
+        
+        .token-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            background: #e7f3ff;
+            border-radius: 4px;
+        }
+        
+        .token-info .type {
+            font-weight: 600;
+            color: #0066cc;
+        }
+        
+        .copy-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        
+        .copy-btn:hover {
+            background: #0056b3;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        
+        .actions {
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👤 用户资料</h1>
+            <div class="nav-links">
+                <a href="/">返回首页</a>
+                <a href="/logout">注销登录</a>
+            </div>
+        </div>
+        
+        <div class="profile-grid">
+            <div class="card">
+                <h3>基本信息</h3>
+                <div class="user-avatar">
+                    <%= user.name ? user.name.charAt(0).toUpperCase() : user.sub.charAt(0).toUpperCase() %>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="label">用户ID:</span>
+                    <span class="value"><%= user.sub %></span>
+                </div>
+                
+                <% if (user.name) { %>
+                <div class="detail-item">
+                    <span class="label">姓名:</span>
+                    <span class="value"><%= user.name %></span>
+                </div>
+                <% } %>
+                
+                <% if (user.username) { %>
+                <div class="detail-item">
+                    <span class="label">用户名:</span>
+                    <span class="value"><%= user.username %></span>
+                </div>
+                <% } %>
+                
+                <% if (user.email) { %>
+                <div class="detail-item">
+                    <span class="label">邮箱:</span>
+                    <span class="value"><%= user.email %></span>
+                </div>
+                <% } %>
+                
+                <% if (user.email_verified !== undefined) { %>
+                <div class="detail-item">
+                    <span class="label">邮箱验证:</span>
+                    <span class="value">
+                        <%= user.email_verified ? '✅ 已验证' : '❌ 未验证' %>
+                    </span>
+                </div>
+                <% } %>
+            </div>
+            
+            <div class="card">
+                <h3>会话信息</h3>
+                
+                <div class="detail-item">
+                    <span class="label">认证时间:</span>
+                    <span class="value">
+                        <%= user.auth_time ? new Date(user.auth_time * 1000).toLocaleString('zh-CN') : '未知' %>
+                    </span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="label">发行者:</span>
+                    <span class="value"><%= user.iss || 'http://localhost:4444/' %></span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="label">受众:</span>
+                    <span class="value"><%= user.aud || 'demo-client' %></span>
+                </div>
+                
+                <% if (user.exp) { %>
+                <div class="detail-item">
+                    <span class="label">令牌过期:</span>
+                    <span class="value">
+                        <%= new Date(user.exp * 1000).toLocaleString('zh-CN') %>
+                    </span>
+                </div>
+                <% } %>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>访问令牌 (Access Token)</h3>
+            <div class="token-info">
+                <span class="type">Bearer Token</span>
+                <button class="copy-btn" onclick="copyToClipboard('access-token')">复制</button>
+            </div>
+            <div class="token-display" id="access-token">
+                <%= access_token %>
+            </div>
+        </div>
+        
+        <% if (id_token) { %>
+        <div class="card">
+            <h3>身份令牌 (ID Token)</h3>
+            <div class="token-info">
+                <span class="type">JWT Token</span>
+                <button class="copy-btn" onclick="copyToClipboard('id-token')">复制</button>
+            </div>
+            <div class="token-display" id="id-token">
+                <%= id_token %>
+            </div>
+        </div>
+        <% } %>
+        
+        <div class="actions">
+            <button onclick="callProtectedAPI()" class="btn btn-success">测试API调用</button>
+            <button onclick="refreshToken()" class="btn btn-warning">刷新令牌</button>
+            <button onclick="decodeJWT()" class="btn btn-primary">解码JWT</button>
+            <a href="/logout" class="btn btn-danger">注销登录</a>
+        </div>
+    </div>
+    
+    <script>
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert('令牌已复制到剪贴板');
+            }).catch(err => {
+                console.error('复制失败:', err);
+                // 兜底方案
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('令牌已复制到剪贴板');
+            });
+        }
+        
+        async function callProtectedAPI() {
+            try {
+                const response = await fetch('/api/protected');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert('受保护的API调用成功!\n\n' + JSON.stringify(data, null, 2));
+                } else {
+                    alert('API调用失败: ' + data.error);
+                }
+            } catch (error) {
+                alert('API调用错误: ' + error.message);
+            }
+        }
+        
+        async function refreshToken() {
+            try {
+                const response = await fetch('/refresh', { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('令牌刷新成功!\n页面将重新加载以显示新的令牌。');
+                    location.reload();
+                } else {
+                    alert('令牌刷新失败: ' + data.error);
+                }
+            } catch (error) {
+                alert('刷新错误: ' + error.message);
+            }
+        }
+        
+        function decodeJWT() {
+            const idToken = document.getElementById('id-token');
+            if (idToken) {
+                const token = idToken.textContent.trim();
+                try {
+                    const parts = token.split('.');
+                    const header = JSON.parse(atob(parts[0]));
+                    const payload = JSON.parse(atob(parts[1]));
+                    
+                    const decoded = {
+                        header: header,
+                        payload: payload
+                    };
+                    
+                    alert('JWT 解码结果:\n\n' + JSON.stringify(decoded, null, 2));
+                } catch (error) {
+                    alert('JWT 解码失败: ' + error.message);
+                }
+            } else {
+                alert('没有找到 ID Token');
+            }
+        }
+    </script>
+</body>
+</html> 

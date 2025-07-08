@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth2 客户端应用 - 首页</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .header p {
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+        
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .status.logged-out {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            color: #856404;
+        }
+        
+        .status.logged-in {
+            background: #d1edff;
+            border-left: 4px solid #0066cc;
+            color: #004085;
+        }
+        
+        .status-icon {
+            font-size: 1.5rem;
+            margin-right: 0.75rem;
+        }
+        
+        .user-info {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .user-info h3 {
+            color: #495057;
+            margin-bottom: 1rem;
+        }
+        
+        .user-detail {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .user-detail:last-child {
+            border-bottom: none;
+        }
+        
+        .user-detail .label {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .user-detail .value {
+            color: #007bff;
+            font-family: monospace;
+        }
+        
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        
+        .feature-list {
+            list-style: none;
+        }
+        
+        .feature-list li {
+            padding: 0.75rem 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .feature-list li::before {
+            content: "✅";
+            margin-right: 0.75rem;
+            font-size: 1.2rem;
+        }
+        
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #495057;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 OAuth2 客户端应用</h1>
+            <p>基于 Ory Hydra 的单点登录演示应用</p>
+        </div>
+        
+        <div class="card">
+            <% if (user) { %>
+            <div class="status logged-in">
+                <div class="status-icon">✅</div>
+                <div>
+                    <strong>已登录</strong><br>
+                    欢迎回来！您已成功通过 OAuth2 认证。
+                </div>
+            </div>
+            
+            <div class="user-info">
+                <h3>用户信息</h3>
+                <div class="user-detail">
+                    <span class="label">用户ID:</span>
+                    <span class="value"><%= user.sub %></span>
+                </div>
+                <% if (user.name) { %>
+                <div class="user-detail">
+                    <span class="label">姓名:</span>
+                    <span class="value"><%= user.name %></span>
+                </div>
+                <% } %>
+                <% if (user.email) { %>
+                <div class="user-detail">
+                    <span class="label">邮箱:</span>
+                    <span class="value"><%= user.email %></span>
+                </div>
+                <% } %>
+                <% if (user.username) { %>
+                <div class="user-detail">
+                    <span class="label">用户名:</span>
+                    <span class="value"><%= user.username %></span>
+                </div>
+                <% } %>
+            </div>
+            
+            <div class="actions">
+                <a href="/profile" class="btn btn-primary">查看详细资料</a>
+                <button onclick="callProtectedAPI()" class="btn btn-success">调用受保护API</button>
+                <button onclick="refreshToken()" class="btn btn-warning">刷新令牌</button>
+                <a href="/logout" class="btn btn-danger">注销登录</a>
+            </div>
+            
+            <% } else { %>
+            <div class="status logged-out">
+                <div class="status-icon">🔓</div>
+                <div>
+                    <strong>未登录</strong><br>
+                    请点击下方按钮开始 OAuth2 认证流程。
+                </div>
+            </div>
+            
+            <div class="actions">
+                <a href="/login" class="btn btn-primary">OAuth2 登录</a>
+            </div>
+            
+            <div class="card">
+                <h3>⚠️ 遇到登录问题？</h3>
+                <p>如果出现 <strong>"invalid_state"</strong> 错误，请尝试：</p>
+                <div class="actions">
+                    <a href="/login/reset" class="btn btn-warning">重置会话并重新登录</a>
+                </div>
+                <ul class="feature-list">
+                    <li>确保只在一个浏览器标签页进行登录</li>
+                    <li>避免在登录过程中刷新页面</li>
+                    <li>如果问题持续，请重启客户端应用</li>
+                </ul>
+            </div>
+            <% } %>
+        </div>
+        
+        <div class="card">
+            <h3>功能特性</h3>
+            <ul class="feature-list">
+                <li>OAuth2 授权码流程 (Authorization Code Flow)</li>
+                <li>OpenID Connect 支持</li>
+                <li>访问令牌和刷新令牌管理</li>
+                <li>安全的用户信息获取</li>
+                <li>完整的登录/注销流程</li>
+                <li>CSRF 保护 (State 参数)</li>
+            </ul>
+        </div>
+        
+        <div class="card">
+            <h3>客户端配置</h3>
+            <div class="code-block">
+客户端ID: <%= client_id %><br>
+授权端点: http://localhost:4444/oauth2/auth<br>
+令牌端点: http://localhost:4444/oauth2/token<br>
+用户信息端点: http://localhost:4444/userinfo<br>
+注销端点: http://localhost:4444/oauth2/sessions/logout
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        async function callProtectedAPI() {
+            try {
+                const response = await fetch('/api/protected');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert('受保护的API调用成功!\n\n' + JSON.stringify(data, null, 2));
+                } else {
+                    alert('API调用失败: ' + data.error);
+                }
+            } catch (error) {
+                alert('API调用错误: ' + error.message);
+            }
+        }
+        
+        async function refreshToken() {
+            try {
+                const response = await fetch('/refresh', { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('令牌刷新成功!\n新的访问令牌已获取。');
+                } else {
+                    alert('令牌刷新失败: ' + data.error);
+                }
+            } catch (error) {
+                alert('刷新错误: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html> 

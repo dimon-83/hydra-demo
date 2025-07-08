@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>授权同意 - OAuth2 认证</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .consent-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .app-info {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #28a745;
+        }
+        
+        .app-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #28a745;
+            margin-bottom: 0.5rem;
+        }
+        
+        .user-info {
+            background: #e7f3ff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .user-info h3 {
+            color: #0066cc;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .permissions {
+            margin-bottom: 2rem;
+        }
+        
+        .permissions h3 {
+            color: #495057;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .scope-list {
+            list-style: none;
+        }
+        
+        .scope-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: #fff3cd;
+            border-radius: 6px;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .scope-item input[type="checkbox"] {
+            margin-right: 1rem;
+            width: 18px;
+            height: 18px;
+        }
+        
+        .scope-description {
+            flex: 1;
+        }
+        
+        .scope-name {
+            font-weight: 600;
+            color: #856404;
+        }
+        
+        .scope-detail {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 0.5rem;
+            width: 18px;
+            height: 18px;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(40,167,69,0.3);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(108,117,125,0.3);
+        }
+        
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="consent-container">
+        <div class="header">
+            <h1>🔐 授权请求</h1>
+        </div>
+        
+        <div class="app-info">
+            <div class="app-name">
+                <%= client.client_name || client.client_id %>
+            </div>
+            <p>请求访问您的账户信息</p>
+        </div>
+        
+        <% if (user) { %>
+        <div class="user-info">
+            <h3>当前登录用户</h3>
+            <p><strong><%= user.name %></strong> (<%= user.email %>)</p>
+        </div>
+        <% } %>
+        
+        <div class="permissions">
+            <h3>应用请求以下权限:</h3>
+            <form method="post" action="/consent" id="consentForm">
+                <input type="hidden" name="challenge" value="<%= challenge %>">
+                
+                <ul class="scope-list">
+                    <% scopes.forEach(function(scope) { %>
+                    <li class="scope-item">
+                        <input type="checkbox" name="grant_scope" value="<%= scope %>" id="scope_<%= scope %>" checked>
+                        <div class="scope-description">
+                            <div class="scope-name">
+                                <% if (scope === 'openid') { %>
+                                    🆔 基本身份信息
+                                <% } else if (scope === 'profile') { %>
+                                    👤 个人资料信息
+                                <% } else if (scope === 'email') { %>
+                                    📧 邮箱地址
+                                <% } else if (scope === 'offline') { %>
+                                    🔄 离线访问权限
+                                <% } else { %>
+                                    🔹 <%= scope %>
+                                <% } %>
+                            </div>
+                            <div class="scope-detail">
+                                <% if (scope === 'openid') { %>
+                                    获取您的基本身份标识信息
+                                <% } else if (scope === 'profile') { %>
+                                    访问您的姓名、用户名等个人资料
+                                <% } else if (scope === 'email') { %>
+                                    访问您的邮箱地址
+                                <% } else if (scope === 'offline') { %>
+                                    在您不在线时也能访问授权的信息
+                                <% } else { %>
+                                    访问 <%= scope %> 相关信息
+                                <% } %>
+                            </div>
+                        </div>
+                    </li>
+                    <% }); %>
+                </ul>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="remember" name="remember" value="1">
+                    <label for="remember">记住此选择，不再询问</label>
+                </div>
+                
+                <div class="warning">
+                    <strong>注意:</strong> 授权后，应用将能够访问上述权限范围内的信息。您可以随时撤销此授权。
+                </div>
+                
+                <div class="buttons">
+                    <button type="button" class="btn btn-secondary" onclick="denyConsent()">拒绝</button>
+                    <button type="submit" class="btn btn-primary">授权</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function denyConsent() {
+            // 取消选中所有权限
+            const checkboxes = document.querySelectorAll('input[name="grant_scope"]');
+            checkboxes.forEach(cb => cb.checked = false);
+            
+            // 提交表单
+            document.getElementById('consentForm').submit();
+        }
+    </script>
+</body>
+</html> 

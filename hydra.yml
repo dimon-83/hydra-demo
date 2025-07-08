@@ -1,0 +1,101 @@
+# Ory Hydra 配置文件
+version: v1.11.8
+
+# 数据库配置
+dsn: postgres://hydra:secret@localhost:5432/hydra?sslmode=disable
+
+# 服务端点配置
+serve:
+  public:
+    port: 4444
+    host: 0.0.0.0
+    cors:
+      enabled: true
+      allowed_origins:
+        - "*"
+      allowed_methods:
+        - POST
+        - GET
+        - PUT
+        - PATCH
+        - DELETE
+      allowed_headers:
+        - Authorization
+        - Content-Type
+      exposed_headers:
+        - Content-Type
+  admin:
+    port: 4445
+    host: 0.0.0.0
+
+# URL 配置
+urls:
+  self:
+    issuer: http://localhost:4444/
+    public: http://localhost:4444/
+  login: http://localhost:3000/login
+  consent: http://localhost:3000/consent
+  logout: http://localhost:3000/logout
+  error: http://localhost:3000/error
+
+# 密钥配置
+secrets:
+  system:
+    - "this-is-the-primary-secret"
+    - "this-is-the-secondary-secret"
+  cookie:
+    - "this-is-the-cookie-secret"
+
+# OAuth2 配置
+oauth2:
+  expose_internal_errors: true
+  hashers:
+    bcrypt:
+      cost: 12
+  
+# Token 策略
+strategies:
+  access_token: jwt
+  scope: wildcard
+
+# Token 有效期
+ttl:
+  login_consent_request: 30m
+  access_token: 1h
+  refresh_token: 720h  # 30 days
+  id_token: 1h
+  auth_code: 10m
+
+# 日志配置
+log:
+  level: debug
+  format: json
+
+# OIDC 配置
+oidc:
+  subject_identifiers:
+    supported_types:
+      - pairwise
+      - public
+    pairwise:
+      salt: "some-random-salt"
+  dynamic_client_registration:
+    enabled: false
+
+# 客户端配置
+clients:
+  - client_id: "demo-client"
+    client_name: "Demo Client Application"
+    client_secret: "demo-secret"
+    redirect_uris:
+      - "http://localhost:5555/callback"
+      - "http://localhost:5555/"
+    response_types:
+      - "code"
+      - "id_token"
+    grant_types:
+      - "authorization_code"
+      - "refresh_token"
+    scope: "openid offline profile email"
+    audience: []
+    token_endpoint_auth_method: "client_secret_basic" 

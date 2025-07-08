@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>错误 - OAuth2 认证</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .error-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+        
+        .error-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .error-title {
+            color: #dc3545;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .error-details {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        
+        .error-details h4 {
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+        
+        .error-details code {
+            background: #e9ecef;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,123,255,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-icon">❌</div>
+        <h1 class="error-title">认证错误</h1>
+        
+        <% if (error) { %>
+        <div class="error-message">
+            <strong>错误类型:</strong> <%= error %>
+        </div>
+        <% } %>
+        
+        <% if (error_description) { %>
+        <div class="error-details">
+            <h4>错误描述:</h4>
+            <p><%= error_description %></p>
+        </div>
+        <% } %>
+        
+        <% if (!error && !error_description) { %>
+        <div class="error-message">
+            <strong>未知错误</strong><br>
+            处理您的请求时发生了意外错误。
+        </div>
+        <% } %>
+        
+        <div class="error-details">
+            <h4>可能的解决方案:</h4>
+            <ul style="padding-left: 1rem;">
+                <li>检查请求参数是否正确</li>
+                <li>确认客户端应用配置是否正确</li>
+                <li>联系系统管理员获取帮助</li>
+            </ul>
+        </div>
+        
+        <a href="javascript:history.back()" class="btn">返回上一页</a>
+    </div>
+</body>
+</html> 
