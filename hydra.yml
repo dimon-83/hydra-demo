@@ -2,7 +2,7 @@
 version: v1.11.8
 
 # 数据库配置
-dsn: postgres://hydra:secret@localhost:5432/hydra?sslmode=disable
+dsn: postgres://hydra:secret@postgres:5432/hydra?sslmode=disable
 
 # 服务端点配置
 serve:
@@ -31,12 +31,12 @@ serve:
 # URL 配置
 urls:
   self:
-    issuer: http://localhost:4444/
-    public: http://localhost:4444/
-  login: http://localhost:3000/login
-  consent: http://localhost:3000/consent
-  logout: http://localhost:3000/logout
-  error: http://localhost:3000/error
+    issuer: http://10.38.211.67:4444
+    public: http://10.38.211.67:4444
+  login: http://10.38.211.67:3000/login
+  consent: http://10.38.211.67:3000/consent
+  logout: http://10.38.211.67:3000/logout
+  error: http://10.38.211.67:3000/error
 
 # 密钥配置
 secrets:
@@ -52,7 +52,7 @@ oauth2:
   hashers:
     bcrypt:
       cost: 12
-  
+
 # Token 策略
 strategies:
   access_token: jwt
@@ -75,7 +75,6 @@ log:
 oidc:
   subject_identifiers:
     supported_types:
-      - pairwise
       - public
     pairwise:
       salt: "some-random-salt"
@@ -88,8 +87,8 @@ clients:
     client_name: "Demo Client Application"
     client_secret: "demo-secret"
     redirect_uris:
+      - "http://10.38.211.67:5555/callback"
       - "http://localhost:5555/callback"
-      - "http://localhost:5555/"
     response_types:
       - "code"
       - "id_token"
@@ -99,3 +98,5 @@ clients:
     scope: "openid offline profile email"
     audience: []
     token_endpoint_auth_method: "client_secret_basic" 
+    skip_consent: true
+    skip_logout_consent: true

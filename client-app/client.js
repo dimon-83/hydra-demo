@@ -7,7 +7,8 @@ const app = express();
 const PORT = 5555;
 
 // OAuth2 配置
-const HYDRA_PUBLIC_URL = 'http://localhost:4444';
+const HYDRA_PUBLIC_URL = 'http://10.38.211.67:4444';
+const AUTH_SERVICE_URL = 'http://10.38.211.67:8000';  // 如需局域网访问改为: http://10.38.211.67:8000
 const CLIENT_ID = 'demo-client';
 const CLIENT_SECRET = 'demo-secret';
 const REDIRECT_URI = 'http://localhost:5555/callback';
@@ -88,7 +89,7 @@ app.get('/callback', async (req, res) => {
   console.log('OAuth2 回调处理:');
   console.log('  收到的 state:', state);
   console.log('  会话中的 state:', req.session.oauth_state);
-  console.log('  收到的 code:', code ? '存在' : '不存在');
+  console.log('  收到的 code:', code );
   console.log('  会话ID:', req.sessionID);
   
   // 检查错误
@@ -131,15 +132,16 @@ app.get('/callback', async (req, res) => {
   console.log('State 验证通过，开始交换令牌...');
   
   try {
-    // 交换授权码获取访问令牌
-    const tokenResponse = await axios.post(`${HYDRA_PUBLIC_URL}/oauth2/token`, {
-      grant_type: 'authorization_code',
+    // 交换授权码获取访问令牌 - 通过自定义认证服务
+    const tokenResponse = await axios.post(`${AUTH_SERVICE_URL}/auth/v1/token?grant_type=authorization_code`, {
+      //grant_type: 'authorization_code',
       code: code,
-      redirect_uri: REDIRECT_URI
+      provider: 'hydra',
+      client_id: CLIENT_ID  // 可选，用于多客户端配置
     }, {
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': `Basic ${Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64')}`
+        'Content-Type': 'application/json',
+        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE'
       }
     });
     
@@ -147,14 +149,15 @@ app.get('/callback', async (req, res) => {
     console.log('获取到令牌:', tokens);
     
     // 存储令牌到会话
-    req.session.access_token = tokens.access_token;
-    req.session.refresh_token = tokens.refresh_token;
+    req.session.supabase_token = tokens.access_token;
+    req.session.access_token = tokens.provider_token;
+    req.session.refresh_token = tokens.provider_refresh_token;
     req.session.id_token = tokens.id_token;
     
     // 使用访问令牌获取用户信息
     const userInfoResponse = await axios.get(`${HYDRA_PUBLIC_URL}/userinfo`, {
       headers: {
-        'Authorization': `Bearer ${tokens.access_token}`
+        'Authorization': `Bearer ${tokens.provider_token}`
       }
     });
     
@@ -192,13 +195,16 @@ app.post('/refresh', async (req, res) => {
   }
   
   try {
-    const tokenResponse = await axios.post(`${HYDRA_PUBLIC_URL}/oauth2/token`, {
+    const tokenData = new URLSearchParams({
       grant_type: 'refresh_token',
-      refresh_token: req.session.refresh_token
-    }, {
+      refresh_token: req.session.refresh_token,
+      client_id: CLIENT_ID,
+      client_secret: CLIENT_SECRET
+    });
+    
+    const tokenResponse = await axios.post(`${HYDRA_PUBLIC_URL}/oauth2/token`, tokenData, {
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': `Basic ${Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64')}`
+        'Content-Type': 'application/x-www-form-urlencoded'
       }
     });
     
@@ -283,5 +289,6 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`OAuth2 客户端应用启动在端口 ${PORT}`);
-  console.log(`访问地址: http://localhost:${PORT}`);
+  console.log(`本地访问地址: http://localhost:${PORT}`);
+  console.log(`局域网访问地址: http://10.38.211.67:${PORT}`);
 }); 

@@ -1,7 +1,7 @@
 {
   "name": "hydra-login-consent-app",
   "version": "1.0.0",
-  "description": "Ory Hydra 登录和同意应用",
+  "description": "Login and Consent app for ORY Hydra with Supabase integration",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
@@ -9,22 +9,23 @@
   },
   "dependencies": {
     "express": "^4.18.2",
-    "axios": "^1.4.0",
+    "axios": "^1.6.0",
     "body-parser": "^1.20.2",
     "express-session": "^1.17.3",
-    "ejs": "^3.1.9",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.1",
+    "@supabase/supabase-js": "^2.38.0",
+    "dotenv": "^16.3.1",
+    "ejs": "^3.1.9"
   },
   "devDependencies": {
-    "nodemon": "^2.0.22"
+    "nodemon": "^3.0.1"
   },
   "keywords": [
     "oauth2",
-    "oidc",
     "hydra",
-    "sso",
+    "supabase",
     "authentication"
   ],
-  "author": "Your Name",
+  "author": "",
   "license": "MIT"
 } 

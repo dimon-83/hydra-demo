@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # PostgreSQL 数据库 - 使用桥接网络
+  postgres:
+    image: postgres:13
+    container_name: hydra-postgres
+    environment:
+      POSTGRES_DB: hydra
+      POSTGRES_USER: hydra
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - hydra-net
+
+  # Ory Hydra 服务 - 使用 host 网络模式
+  hydra:
+    image: oryd/hydra:v1.11.8
+    container_name: hydra-server
+    network_mode: "host"  # 直接使用宿主机网络
+    command: serve all --dangerous-force-http -c /etc/config/hydra/hydra.yml
+    environment:
+      - DSN=postgres://hydra:secret@localhost:5432/hydra?sslmode=disable
+      # 使用 localhost 因为直接在宿主机网络中
+      - URLS_SELF_ISSUER=http://localhost:4444
+      - URLS_CONSENT=http://localhost:3000/consent
+      - URLS_LOGIN=http://localhost:3000/login
+      - URLS_LOGOUT=http://localhost:3000/logout
+      - URLS_ERROR=http://localhost:3000/error
+      - SECRETS_SYSTEM=this-is-the-primary-secret,this-is-the-secondary-secret
+      - SECRETS_COOKIE=this-is-the-cookie-secret
+      - OIDC_SUBJECT_IDENTIFIERS_SUPPORTED_TYPES=public,pairwise
+      - OIDC_SUBJECT_IDENTIFIERS_PAIRWISE_SALT=some-random-salt
+      - LOG_LEVEL=debug
+    depends_on:
+      - postgres
+    volumes:
+      - ./hydra.host-network.yml:/etc/config/hydra/hydra.yml
+
+  # Hydra 数据库迁移
+  hydra-migrate:
+    image: oryd/hydra:v1.11.8
+    container_name: hydra-migrate
+    environment:
+      - DSN=postgres://hydra:secret@localhost:5432/hydra?sslmode=disable
+    command: migrate sql -e --yes
+    network_mode: "host"
+    depends_on:
+      - postgres
+    restart: "no"
+
+networks:
+  hydra-net:
+    driver: bridge
+
+volumes:
+  postgres_data: 

@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  # PostgreSQL 数据库 - hydra-demo 命名空间
+  postgres:
+    image: postgres:13
+    container_name: hydra-postgres
+    environment:
+      POSTGRES_DB: hydra
+      POSTGRES_USER: hydra
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - hydra-shared-network
+    restart: unless-stopped
+
+  # Ory Hydra 服务 - 使用共享网络
+  hydra:
+    image: oryd/hydra:v1.11.8
+    container_name: hydra-server
+    command: serve all --dangerous-force-http -c /etc/config/hydra/hydra.yml
+    environment:
+      - DSN=postgres://hydra:secret@postgres:5432/hydra?sslmode=disable
+      # 使用内部网络域名
+      - URLS_SELF_ISSUER=http://hydra:4444
+      # 使用 IP 地址访问 login-consent 服务
+      - URLS_CONSENT=http://10.38.211.67:3000/consent
+      - URLS_LOGIN=http://10.38.211.67:3000/login
+      - URLS_LOGOUT=http://10.38.211.67:3000/logout
+      - URLS_ERROR=http://10.38.211.67:3000/error
+      - SECRETS_SYSTEM=this-is-the-primary-secret,this-is-the-secondary-secret
+      - SECRETS_COOKIE=this-is-the-cookie-secret
+      - OIDC_SUBJECT_IDENTIFIERS_SUPPORTED_TYPES=public,pairwise
+      - OIDC_SUBJECT_IDENTIFIERS_PAIRWISE_SALT=some-random-salt
+      - LOG_LEVEL=debug
+      # 允许跨域访问
+      - SERVE_PUBLIC_CORS_ENABLED=true
+      - SERVE_PUBLIC_CORS_ALLOWED_ORIGINS=*
+      - SERVE_ADMIN_CORS_ENABLED=true
+      - SERVE_ADMIN_CORS_ALLOWED_ORIGINS=*
+    depends_on:
+      - postgres
+    volumes:
+      - ./hydra.shared-network.yml:/etc/config/hydra/hydra.yml
+    networks:
+      - hydra-shared-network
+    ports:
+      - "4444:4444"  # Public API
+      - "4445:4445"  # Admin API
+    restart: unless-stopped
+
+  # # Login & Consent App
+  # hydra-login-consent:
+  #   build: ./login-consent-app
+  #   container_name: hydra-login-consent
+  #   environment:
+  #     - HYDRA_ADMIN_URL=http://hydra:4445
+  #     - HYDRA_PUBLIC_URL=http://hydra:4444
+  #     - PORT=3000
+  #     - NODE_ENV=development
+  #   depends_on:
+  #     - hydra
+  #   networks:
+  #     - hydra-shared-network
+  #   ports:
+  #     - "3000:3000"
+  #   restart: unless-stopped
+
+  # Hydra 数据库迁移
+  hydra-migrate:
+    image: oryd/hydra:v1.11.8
+    container_name: hydra-migrate
+    environment:
+      - DSN=postgres://hydra:secret@postgres:5432/hydra?sslmode=disable
+    command: migrate sql -e --yes
+    depends_on:
+      - postgres
+    networks:
+      - hydra-shared-network
+    restart: "no"
+
+volumes:
+  postgres_data:
+
+networks:
+  # 外部共享网络，可以被其他命名空间访问
+  hydra-shared-network:
+    external: true
+    name: hydra-shared-network 

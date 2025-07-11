@@ -1,0 +1,20 @@
+# 配置模板 - 请复制此文件为 .env 并填入实际值
+
+# 应用配置
+PORT=3000
+
+# Hydra 配置
+HYDRA_ADMIN_URL=http://localhost:4445
+
+# Supabase 配置
+SUPABASE_URL=your_supabase_url_here
+SUPABASE_ANON_KEY=your_supabase_anon_key_here
+
+# 会话配置
+SESSION_SECRET=your_session_secret_here
+
+# 使用说明:
+# 1. 将此文件复制为 .env
+# 2. 替换 your_supabase_url_here 为您的 Supabase 项目 URL
+# 3. 替换 your_supabase_anon_key_here 为您的 Supabase 匿名密钥
+# 4. 可选：修改其他配置项 

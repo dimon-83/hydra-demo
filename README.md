@@ -2,6 +2,67 @@
 
 这是一个基于 **Ory Hydra** 的完整 OAuth2 和 OpenID Connect 单点登录解决方案演示项目。
 
+## 📚 文档导航
+
+### 🚀 快速开始
+- **[⚡ 快速开始指南](./docs/guides/quick-start.md)** - 15分钟搭建完整系统
+- [本地开发环境配置](./docs/guides/local-development.md)
+- [Supabase 集成配置](./docs/guides/supabase-integration.md)
+
+### 🏗️ 架构设计
+- [SAML vs OIDC 协议对比](./docs/architecture/protocols-comparison.md)
+- [OIDC 多租户架构设计](./docs/architecture/oidc-multitenant.md)
+- [系统整体架构](./docs/architecture/system-overview.md)
+
+### 🔧 开发指南
+- [API 文档](./docs/api/)
+- [安全最佳实践](./docs/security/)
+- [测试指南](./docs/testing/)
+- [部署指南](./docs/deployment/)
+
+### 📖 完整文档
+
+### 🚀 开始使用
+- **[⚡ 快速开始指南](./docs/guides/quick-start.md)** - 15分钟完整搭建
+- [本地开发环境详细配置](./docs/guides/local-development.md)
+- [Hydra OIDC 配置指南](./docs/guides/hydra-setup.md)
+- [Supabase 集成配置](./docs/guides/supabase-integration.md)
+- [Login Challenge 生成过程详解](./docs/guides/login-challenge-flow.md)
+- [跳过 Consent 授权配置指南](./docs/guides/skip-consent-configuration.md)
+
+### 🏗️ 系统架构
+- [系统整体架构设计](./docs/architecture/system-overview.md)
+- [SAML vs OIDC 协议详细对比](./docs/architecture/protocols-comparison.md)
+- [OIDC 多租户架构指南](./docs/architecture/oidc-multitenant.md)
+- [前后端分离认证流程](./docs/architecture/frontend-backend-flow.md)
+
+### 🔧 开发指南
+- [认证 API 参考](./docs/api/auth-api.md)
+- [用户管理 API](./docs/api/user-management.md)
+- [权限管理系统](./docs/api/permissions.md)
+- [租户管理 API](./docs/api/tenant-management.md)
+
+### 🔒 安全配置
+- [安全最佳实践](./docs/security/best-practices.md)
+- [JWT 配置和验证](./docs/security/jwt-security.md)
+- [数据库安全配置](./docs/security/database-security.md)
+
+### 🚀 部署运维
+- [Docker 部署指南](./docs/deployment/docker.md)
+- [生产环境配置](./docs/deployment/production.md)
+- [监控和日志管理](./docs/deployment/monitoring.md)
+- [故障排除手册](./docs/deployment/troubleshooting.md)
+
+### 🧪 测试
+- [测试指南](./docs/testing/testing-guide.md)
+- [集成测试](./docs/testing/integration-tests.md)
+- [安全测试](./docs/testing/security-tests.md)
+
+### 📖 完整文档目录
+> 📂 **[查看所有文档](./docs/README.md)** - 包含详细的文档结构和编写规范
+
+---
+
 ## 🎯 项目特性
 
 - ✅ OAuth2 授权码流程 (Authorization Code Flow)
@@ -261,7 +322,7 @@ sequenceDiagram
     ClientApp->>ClientApp: 15. 存储令牌到自己的 session
 ```
 
-### �� 关键区别
+### 🔄 关键区别
 
 | 存储位置 | 服务器 | 存储内容 | 访问方式 | 生命周期 |
 |----------|--------|----------|----------|----------|
@@ -591,10 +652,61 @@ chmod +x scripts/diagnose.sh
 - [OAuth 2.0 RFC](https://tools.ietf.org/html/rfc6749)
 - [OpenID Connect 规范](https://openid.net/connect/)
 
-## 🤝 贡献
+## 🆘 技术支持
 
-欢迎提交 Issue 和 Pull Request！
+### 获取帮助
+1. 📖 查看 [快速开始指南](./docs/guides/quick-start.md)
+2. 🔍 搜索 [故障排除手册](./docs/deployment/troubleshooting.md)
+3. 💬 提交 [GitHub Issue](../../issues)
+4. 📧 联系项目维护者
 
-## �� 许可证
+### 常用资源
+- [Ory Hydra 官方文档](https://www.ory.sh/hydra/docs/)
+- [Supabase 官方文档](https://supabase.com/docs)
+- [OAuth 2.0 RFC](https://tools.ietf.org/html/rfc6749)
+- [OpenID Connect 规范](https://openid.net/connect/)
 
-MIT License 
+## 🤝 贡献指南
+
+### 如何贡献
+1. Fork 项目
+2. 创建功能分支 (`git checkout -b feature/amazing-feature`)
+3. 提交更改 (`git commit -m 'Add amazing feature'`)
+4. 推送到分支 (`git push origin feature/amazing-feature`)
+5. 开启 Pull Request
+
+### 贡献类型
+- 🐛 Bug 修复
+- ✨ 新功能开发
+- 📝 文档改进
+- 🔧 性能优化
+- 🧪 测试覆盖
+- 🌐 国际化支持
+
+### 开发规范
+- 遵循现有代码风格
+- 添加适当的测试用例
+- 更新相关文档
+- 确保通过所有检查
+
+## 🏆 致谢
+
+感谢以下开源项目：
+- [Ory Hydra](https://github.com/ory/hydra) - OAuth2 和 OpenID Connect 服务器
+- [Supabase](https://github.com/supabase/supabase) - 开源 Firebase 替代方案
+- [Express.js](https://expressjs.com/) - 快速、极简的 Web 框架
+- [Docker](https://www.docker.com/) - 容器化平台
+
+## 📄 许可证
+
+本项目采用 MIT License 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
+
+---
+
+<div align="center">
+
+**⭐ 如果这个项目对你有帮助，请给个 Star！**
+
+[🌟 Star this repo](../../stargazers) • [🐛 Report Bug](../../issues) • [💡 Request Feature](../../issues)
+
+</div> 

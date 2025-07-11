@@ -1,0 +1,109 @@
+version: '3.8'
+
+services:
+  # Supabase 数据库
+  postgres-supabase:
+    image: postgres:15
+    container_name: supabase-postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=your-super-secret-password
+      - POSTGRES_DB=postgres
+    volumes:
+      - supabase_postgres_data:/var/lib/postgresql/data
+    networks:
+      - supabase-network
+    restart: unless-stopped
+
+  # Supabase Auth 服务 - 集成 Hydra OIDC
+  supabase-auth:
+    image: supabase/gotrue:v2.99.0
+    container_name: supabase-auth
+    ports:
+      - "9999:8080"
+    environment:
+      # 数据库配置
+      - DATABASE_URL=postgres://postgres:your-super-secret-password@postgres-supabase:5432/postgres
+      
+      # JWT 配置
+      - JWT_SECRET=your-super-secret-jwt-token-with-at-least-32-characters-long
+      - JWT_EXP=3600
+      - JWT_DEFAULT_GROUP_NAME=authenticated
+      
+      # 站点配置
+      - SITE_URL=http://localhost:3000
+      - URI_ALLOW_LIST=http://localhost:3000,http://localhost:8080
+      
+      # Hydra OIDC 集成配置 - 通过共享网络访问
+      - EXTERNAL_HYDRA_OIDC_ENABLED=true
+      - EXTERNAL_HYDRA_OIDC_CLIENT_ID=supabase-client
+      - EXTERNAL_HYDRA_OIDC_SECRET=supabase-oidc-secret-2023
+      - EXTERNAL_HYDRA_OIDC_REDIRECT_URI=http://localhost:9999/callback
+      - EXTERNAL_HYDRA_OIDC_URL=http://hydra:4444  # 通过共享网络访问 Hydra
+      
+      # 其他配置
+      - EXTERNAL_EMAIL_ENABLED=true
+      - EXTERNAL_PHONE_ENABLED=false
+      - SESSIONS_TIMEBOX=24h
+      - SESSIONS_INACTIVITY_TIMEOUT=8h
+      
+      # 禁用邮箱验证配置 - 开发环境
+      - ENABLE_CONFIRMATIONS=false
+      - MAILER_AUTOCONFIRM=true
+      - EXTERNAL_HYDRA_OIDC_SKIP_NONCE_CHECK=true
+      - SECURITY_CAPTCHA_ENABLED=false
+    depends_on:
+      - postgres-supabase
+    networks:
+      - supabase-network
+      - hydra-shared-network  # 加入共享网络以访问 Hydra
+    restart: unless-stopped
+
+  # Supabase REST API
+  supabase-rest:
+    image: postgrest/postgrest:v10.2.0
+    container_name: supabase-rest
+    ports:
+      - "3001:3000"
+    environment:
+      - PGRST_DB_URI=postgres://postgres:your-super-secret-password@postgres-supabase:5432/postgres
+      - PGRST_DB_SCHEMAS=public
+      - PGRST_DB_ANON_ROLE=anon
+      - PGRST_JWT_SECRET=your-super-secret-jwt-token-with-at-least-32-characters-long
+    depends_on:
+      - postgres-supabase
+    networks:
+      - supabase-network
+    restart: unless-stopped
+
+  # Supabase Dashboard (可选)
+  supabase-dashboard:
+    image: supabase/studio:latest
+    container_name: supabase-dashboard
+    ports:
+      - "3002:3000"
+    environment:
+      - SUPABASE_URL=http://localhost:3001
+      - SUPABASE_REST_URL=http://supabase-rest:3000
+      - SUPABASE_AUTH_URL=http://supabase-auth:8080
+      - SUPABASE_ANON_KEY=your-anon-key
+      - SUPABASE_SERVICE_KEY=your-service-role-key
+    depends_on:
+      - supabase-auth
+      - supabase-rest
+    networks:
+      - supabase-network
+    restart: unless-stopped
+
+volumes:
+  supabase_postgres_data:
+
+networks:
+  # 本地网络
+  supabase-network:
+    driver: bridge
+  
+  # 共享网络 - 用于访问 Hydra
+  hydra-shared-network:
+    external: true
+    name: hydra-shared-network 
